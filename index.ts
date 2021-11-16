@@ -4,18 +4,10 @@ import * as awsx from "@pulumi/awsx";
 import { Config, Output } from "@pulumi/pulumi";
 import { LocalIp } from "./localIp";
 
-const basicTags = {
-    Owner: "Piers",
-};
-
 const config: Config = new Config("vscode-box");
 const publicKey: Output<string> = config.requireSecret("publicKey");
 
 const vpc = new awsx.ec2.Vpc("vs-code-vpc", {
-    tags: {
-        ...basicTags,
-        Name: "piers-vscode-vpc"
-    },
     cidrBlock: "10.0.0.0/24",
     subnets: [{ type: "public", name: "vscode-public" }],
     numberOfAvailabilityZones: 1
@@ -24,10 +16,6 @@ const vpc = new awsx.ec2.Vpc("vs-code-vpc", {
 const localIp = new LocalIp("locaIp");
 
 const sshSG = new aws.ec2.SecurityGroup("sshSG", {
-    tags: {
-        ...basicTags,
-        Name: "pk-vscode-sg"
-    },
     vpcId: vpc.id,
     ingress: [{
         toPort: 22,
@@ -66,10 +54,6 @@ const ec2 = new aws.ec2.Instance("instance", {
     ami: amiId,
     keyName: keyPair.keyName,
     subnetId: pulumi.output(vpc.publicSubnetIds)[0],
-    tags: {
-        Name: "pk--vscode-instance",
-        ...basicTags,
-    },
     userData: "#!/bin/bash" +
         "sudo yum update -y"
 }, { ignoreChanges: ["ami"], protect: false });
