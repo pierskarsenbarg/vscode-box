@@ -1,0 +1,3 @@
+name: vscode-box
+runtime: nodejs
+description: A minimal AWS TypeScript Pulumi program
